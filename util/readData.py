@@ -41,7 +41,6 @@ def countOfWord(data):
 
     return len(w)
 
-
 if __name__ == '__main__':
     data = readDataTxt('../datagrand/corpus.txt')
     # writeDataTxt('../datagrand/newCropus.txt',data)

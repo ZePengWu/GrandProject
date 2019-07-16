@@ -6,8 +6,12 @@
 # @Software: PyCharm
 
 from util.readData import readDataTxt
-import numpy as np
+from util.trainEmb import build_word_dict
+from keras.preproccessing.sequence import pad_sequences
+from keras.utils.np_utils import to_categorical
 
+import numpy as np
+import os
 def creatLable(substr, lable='o'):
     """"""
     L = str(substr).split("_")
@@ -66,28 +70,98 @@ def changeSequence(data):
         data_y.append(y)
     print(max_count,count)
     return data_x,data_y
-def readVector(path):
+def get_embedding_mat_and_w2index(path):
     """
     返回 index2word,word2index,embeding_mat
     :param path:
     :return:
     """
-    v2e = {}
+    # 读取向量文件
+    w2v = build_word_dict(path)
+    # 生成词表词典
+    w2index = { k : i for i , k in enumerate(sorted( w2v.keys() ) , 1 )}
+    n_vocab = len(w2v) + 1
+    n_embeeding = 300
+    # 生成此嵌入矩阵 emb_mat
+    embeeding_mat = np.zeros([n_vocab,n_embeeding])
+    for word,index in w2index.items():
+        vec = w2v.get(word)
+        if vec is not None:
+            embeeding_mat[index] = vec
+    return embeeding_mat,w2index
+def get_x_data_index(data,w2index,sequence_len):
+    """
+    将数据转化为 index（索引表示）
+    :param data: 原数据
+    :param w2index: 词典
+    :param sequence_len: 最大序列长度
+    :return:
+    """
+    index_data = []
+    for l in data:
+        index_data.append([w2index[s] if w2index.get(s) is not None else 0 for s in l])
+    index_array = pad_sequences(index_data,maxlen = sequence_len,dtype='int32',
+                                padding='post',truncating='post',value=0)
 
-    return v2e
+    return index_array
+
+
+def get_y_data_index(data, lable2index, sequence_len):
+    """
+    将数据转化为 index（索引表示）
+    :param data: 原数据
+    :param w2index: 词典
+    :param sequence_len: 最大序列长度
+    :return:
+    """
+    index_data = []
+    for l in data:
+        index_data.append([lable2index[s] for s in l])
+
+    index_array = pad_sequences(index_data, maxlen=sequence_len, dtype='int32',
+                                padding='post', truncating='post', value=0)
+    index_array = to_categorical(index_array,num_classes=7)
+    return index_array
+
 if __name__ == '__main__':
-
+    embbedding_mat_files = '../datagrand/embedding_matrix.npy'
+    #数据添加
     test_data = readDataTxt('../datagrand/test.txt')
     test_x,test_y = changeSequence(test_data)
     train_data = readDataTxt('../datagrand/train.txt')
     train_x_all, train_y_all = changeSequence(train_data)
     # print(np.shape(train_x_all))
     # print(np.shape(train_y_all))
-
+    #分割训练集 开发集
     train_x, dev_x = train_x_all[:15000], train_x_all[15000:]
     train_y, dev_y = train_y_all[:15000], train_y_all[15000:]
     print(type(train_x))
     print(np.array(train_x).shape,np.shape(train_y))
     print(np.shape(dev_x),np.shape(dev_y))
     print(np.shape(test_x),np.shape(test_y))
+    embbedding_mat,w2index=get_embedding_mat_and_w2index('')
+    if not os.path.exists(embbedding_mat_files):
+        np.save(embbedding_mat_files,embbedding_mat)
+    train_x = get_x_data_index(train_x,w2index,200)
+    dev_x = get_x_data_index(dev_x,w2index,200)
+    test_x = get_x_data_index(test_x,w2index,200)
+
+    lable2index = dict()
+    idx = 0
+    for l in ['o','a-B','a-I','b-B','b-I','c-B','c-I']:
+        lable2index[l] = idx
+        idx += 1
+
+    train_y = get_y_data_index(train_y,lable2index,200)
+    dev_y = get_y_data_index(dev_y,lable2index,200)
+    test_y = get_y_data_index(test_y,lable2index,200)
+
+    np.save('../datagrand/train_x.npy',train_x)
+    np.save('../datagrand/train_y.npy',train_y)
+    np.save('../datagrand/test_x.npy',test_x)
+    np.save('../datagrand/test_y.npy',test_y)
+    np.save('../datagrand/dev_x.npy',dev_x)
+    np.save('../datagrand/dev_y.npy',dev_y)
+
+
 
