@@ -63,12 +63,12 @@ def changeSequence(data):
             max_count = len(x)
         if len(x) >= 200:
             count += 1
-
-        print(len(x),len(y))
-        print(y)
+        # print(len(x),len(y))
+        # print(y)
         data_x.append(x)
         data_y.append(y)
-    print(max_count,count)
+    # print(max_count,count)
+    # print(data_x,data_y)
     return data_x,data_y
 def get_embedding_mat_and_w2index(path):
     """
@@ -99,7 +99,10 @@ def get_x_data_index(data,w2index,sequence_len):
     """
     index_data = []
     for l in data:
-        index_data.append([w2index[s] if w2index.get(s) is not None else 0 for s in l])
+        # print(l)
+        # print([w2index[str(s)] if w2index.get(str(s)) is not None else 0 for s in l])
+        index_data.append([w2index[str(s)] if w2index.get(str(s)) is not None else 0 for s in l])
+        # print(index_data)
     index_array = pad_sequences(index_data,maxlen = sequence_len,dtype='int32',
                                 padding='post',truncating='post',value=0)
 
@@ -116,7 +119,11 @@ def get_y_data_index(data, lable2index, sequence_len):
     """
     index_data = []
     for l in data:
-        index_data.append([lable2index[s] for s in l])
+        # print(l)
+        # print([lable2index[str(s)] for s in l])
+        # print([lable2index[s] for s in l])
+
+        index_data.append([lable2index[str(s)] for s in l])
 
     index_array = pad_sequences(index_data, maxlen=sequence_len, dtype='int32',
                                 padding='post', truncating='post', value=0)
@@ -130,15 +137,9 @@ if __name__ == '__main__':
     test_x,test_y = changeSequence(test_data)
     train_data = readDataTxt('../datagrand/train.txt')
     train_x_all, train_y_all = changeSequence(train_data)
-    # print(np.shape(train_x_all))
-    # print(np.shape(train_y_all))
     #分割训练集 开发集
     train_x, dev_x = train_x_all[:15000], train_x_all[15000:]
     train_y, dev_y = train_y_all[:15000], train_y_all[15000:]
-    print(type(train_x))
-    print(np.array(train_x).shape,np.shape(train_y))
-    print(np.shape(dev_x),np.shape(dev_y))
-    print(np.shape(test_x),np.shape(test_y))
     embbedding_mat,w2index=get_embedding_mat_and_w2index('../datagrand/w2v/grand.w2v.300d.txt')
     if not os.path.exists(embbedding_mat_files):
         np.save(embbedding_mat_files,embbedding_mat)
@@ -151,7 +152,6 @@ if __name__ == '__main__':
     for l in ['o','a-B','a-I','b-B','b-I','c-B','c-I']:
         lable2index[l] = idx
         idx += 1
-
     train_y = get_y_data_index(train_y,lable2index,200)
     dev_y = get_y_data_index(dev_y,lable2index,200)
     test_y = get_y_data_index(test_y,lable2index,200)

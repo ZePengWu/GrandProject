@@ -9,6 +9,7 @@ from gensim.models.word2vec import Word2Vec
 from gensim.models.word2vec import LineSentence
 import numpy as np
 import warnings
+
 warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
 def trainW2v():
     sentences = LineSentence('../datagrand/newCropus.txt')
@@ -24,7 +25,7 @@ def build_word_dict(model_path):
     vocab = model.wv.vocab
     word_vector = {}
     for word in vocab:
-        print (word)
+        # print (word)
         word_vector[word] = np.asarray(model[word],dtype='float32')
     return word_vector
 

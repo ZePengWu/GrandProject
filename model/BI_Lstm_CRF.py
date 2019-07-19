@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 import keras
-from keras.layers import Embedding,Bidirectional,GRU,AlphaDropout,Masking,TimeDistributed
+from keras.layers import Embedding,Bidirectional,GRU,AlphaDropout,Masking,TimeDistributed,Dropout
 from keras.models import Sequential
 from model.crf_layer import CRF
 class BiLSTM_CRF():
@@ -34,7 +34,7 @@ class BiLSTM_CRF():
                                  weights=[self.embeding_mat],
                                  mask_zero=True,
                                  trainable=True))
-        self.model.add(AlphaDropout(self.keep_prob))
+        self.model.add(Dropout(self.keep_prob))
         self.model.add(Bidirectional(GRU(self.n_lstm,
                                          return_sequences=True,
                                          dropout=self.keep_prob_lstm,

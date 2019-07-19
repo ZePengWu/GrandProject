@@ -29,7 +29,7 @@ def writeDataTxt(path,data):
     f = open(path, 'a', encoding="utf-8")
     for line in data:
         lineStr = str(line).replace("_"," ")
-        print(lineStr)
+        # print(lineStr)
         f.write(lineStr + "\n")
     print("数据写入完成...")
 def countOfWord(data):
