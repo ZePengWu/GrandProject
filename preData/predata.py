@@ -7,7 +7,7 @@
 
 from util.readData import readDataTxt
 from util.trainEmb import build_word_dict
-from keras.preproccessing.sequence import pad_sequences
+from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 
 import numpy as np
@@ -139,13 +139,13 @@ if __name__ == '__main__':
     print(np.array(train_x).shape,np.shape(train_y))
     print(np.shape(dev_x),np.shape(dev_y))
     print(np.shape(test_x),np.shape(test_y))
-    embbedding_mat,w2index=get_embedding_mat_and_w2index('')
+    embbedding_mat,w2index=get_embedding_mat_and_w2index('../datagrand/w2v/grand.w2v.300d.txt')
     if not os.path.exists(embbedding_mat_files):
         np.save(embbedding_mat_files,embbedding_mat)
     train_x = get_x_data_index(train_x,w2index,200)
     dev_x = get_x_data_index(dev_x,w2index,200)
     test_x = get_x_data_index(test_x,w2index,200)
-
+    print(train_x.shape,dev_x.shape,test_x.shape)
     lable2index = dict()
     idx = 0
     for l in ['o','a-B','a-I','b-B','b-I','c-B','c-I']:
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     train_y = get_y_data_index(train_y,lable2index,200)
     dev_y = get_y_data_index(dev_y,lable2index,200)
     test_y = get_y_data_index(test_y,lable2index,200)
-
+    print(train_y.shape,dev_y.shape,test_y.shape)
     np.save('../datagrand/train_x.npy',train_x)
     np.save('../datagrand/train_y.npy',train_y)
     np.save('../datagrand/test_x.npy',test_x)
