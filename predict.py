@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # w2index = get_w2index('../datagrand/w2v/grand.w2v.300d.txt')
     # #
     # index2w = {i : w for w,i in w2index.items()}
-    x_test,_ = changeSequence(readDataTxt('../datagrand/test.txt'))
+    x_test,_ = changeSequence(readDataTxt('./datagrand/test.txt'))
     print(np.shape(x_test))
     #读取测试集
     X_test = np.load('datagrand/test_x.npy')
@@ -48,12 +48,12 @@ if __name__ == '__main__':
                            n_embed=300, embeding_mat=char_embedding_mat,
                            keep_prob=0.5, n_lstm=500, keep_prob_lstm=0.6,
                            n_entity=7, optimizer='adam', batch_size=32, epochs=500)
-    model_file = 'datagrand/bilstm_crf_best.hdf5'
+    model_file = 'datagrand/bilstm_crf_weights_best.hdf5'
     ner_model.model.load_weights(model_file)
     #预测模型
     y_pred = ner_model.model.predict(X_test[:, :])
     print(y_pred.shape)
     pred_list = get_y_origin(y_pred,get_index2label())
     print(np.shape(pred_list))
-    
+
 
