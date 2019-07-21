@@ -7,7 +7,7 @@
 import numpy as np
 from model.BI_Lstm_CRF import BiLSTM_CRF
 from util.trainEmb import build_word_dict
-from util.readData import readDataTxt
+from util.readData import readDataTxt,writeSubDataTxt
 from preData.predata import changeSequence
 def get_index2label():
     index2label = dict()
@@ -31,7 +31,65 @@ def get_y_origin(y_data,index2label):
     for i in range(n_sample):
         pred_label = [index2label[idx] for idx in np.argmax(y_data[i], axis=1)]
         pred_list.append(pred_label)
+        print(pred_label)
     return pred_list
+def get_submit_data(x_data,y_data):
+    """"""
+    sub_y_data = []
+    print(len(x_data))
+    print(len(y_data))
+    for x,y in zip(x_data,y_data):
+        data = []
+        length_x = len(x)
+        length_y = len(y)
+        if length_y >= length_x:
+            sub_y = y[:length_x]
+        else:
+            sub_y = y
+            sub_y.extend(['o' for i in range(length_x-length_y)])
+        sub_y_data.append(sub_y)
+    sub_data = []
+    for y_list,x_list in zip(sub_y_data,x_data):
+        index_now = ''
+        index_last = ''
+        line = ""
+        for index in range(len(y_list)):
+            y = y_list[index]
+            x = str(x_list[index])
+            line = line + x
+            if index < len(y_list) - 1:
+                if y == y_list[index+1]:
+                    if y == 'o' or y == 'b-I' or y == 'a-I' or y == 'c-I':
+                        line = line + '_'
+                    elif y == 'a-B' :
+                        line = line + '/a' + "  "
+                    elif y == 'b-B' :
+                        line = line + '/b' + "  "
+                    elif y == 'c-B':
+                        line = line + '/c' + "  "
+                else:
+                    if (y == 'a-B' and y_list[index+1] == 'a-I') or \
+                            (y == 'b-B' and y_list[index+1] == 'b-I') or (y == 'c-B' and y_list[index+1] == 'c-I'):
+                        line = line + '_'
+                    elif y == 'o':
+                        line = line + '/o' + '  '
+                    elif y == 'a-I':
+                        line = line + '/a' + "  "
+                    elif y == 'b-I':
+                        line = line + '/b' + "  "
+                    elif y == 'c-I':
+                        line = line + '/c' + "  "
+            elif index == len(y_list) - 1 :
+                if y == 'o':
+                    line = line + '/o'
+                elif y == 'a-I':
+                    line = line + '/a'
+                elif y == 'b-I':
+                    line = line + '/b'
+                elif y == 'c-I':
+                    line = line + '/c'
+        sub_data.append(line)
+    return sub_data
 if __name__ == '__main__':
     """"""
     #向量矩阵
@@ -55,5 +113,8 @@ if __name__ == '__main__':
     print(y_pred.shape)
     pred_list = get_y_origin(y_pred,get_index2label())
     print(np.shape(pred_list))
+
+    data = get_submit_data(x_test, pred_list)
+    writeSubDataTxt('../datagrand/submit.txt', data)
 
 
